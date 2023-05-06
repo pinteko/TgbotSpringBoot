@@ -1,6 +1,8 @@
 package com.example.tgbotspringboot;
 
+import com.example.tgbotspringboot.Builder.MyFilterBuilder;
 import com.example.tgbotspringboot.Entity.Country;
+import com.example.tgbotspringboot.Entity.Filter;
 import com.example.tgbotspringboot.Entity.ListVacancies;
 import com.example.tgbotspringboot.Entity.Vacancy;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -24,12 +26,14 @@ public class HhApi {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public List<Vacancy> getVacanciesFilterNameRegion(String nameVacancy, String nameRegion){
-        HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://api.hh.ru/vacancies?" + "text=" + nameVacancy + "&area=" + getIdRegion(nameRegion))).build();
+    public List<Vacancy> getVacanciesFilterNameRegion(Filter filter){
+        HttpRequest httpRequest = HttpRequest.newBuilder().uri(URI.create("https://api.hh.ru/vacancies?" + "text=" + filter.getNameVacancy() + "&area=" + getIdRegion(filter.getNameRegion()))).build();
         try {
+            System.out.println(filter.toString());
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             String body = response.body();
             System.out.println(body);
+            System.out.println("это я " + response.request().headers().firstValue("request_id"));
             ListVacancies lV = objectMapper.readValue(body,ListVacancies.class);
             return lV.getItems();
         } catch (IOException e) {
